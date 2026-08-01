@@ -1,0 +1,368 @@
+// CONFIGURATION
+// Paste your spreadsheet ID here (from the sheet URL: docs.google.com/spreadsheets/d/<THIS_PART>/edit)
+// If left blank, the script uses the spreadsheet it is bound to.
+const SPREADSHEET_ID = '';
+
+function getSpreadsheet() {
+  if (SPREADSHEET_ID) {
+    return SpreadsheetApp.openById(SPREADSHEET_ID);
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+
+function doPost(e) {
+  if (!e || (!e.postData && !e.parameter)) {
+    console.log('⚠️ No POST data received');
+    return ContentService.createTextOutput('ERROR: No POST data received');
+  }
+
+  try {
+    const ss = getSpreadsheet();
+    if (!ss) return ContentService.createTextOutput('ERROR: No spreadsheet found - check SPREADSHEET_ID or bind the script');
+    // Use the first sheet for data logging
+    const sheet = ss.getSheets()[0];
+
+    // --- 1. CLEAN KEY GENERATION ---
+    const makeKey = (page, item) => {
+      if (!page || !item) return 'unknown';
+      return (page.toString() + '-' + item.toString())
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '')
+        .trim();
+    };
+
+    // --- 2. SETUP HEADERS ---
+    if (sheet.getLastRow() === 0) {
+      const headers = [
+        'Start_Time', 'End_Time', 'Checkup_Time', 'EMT', 'Car', 'Shift',
+        'Category', 'Item', 'Initial_Status', 'Final_Status',
+        'Initial_Quantity', 'Final_Quantity', 'Required_Quantity'
+      ];
+      sheet.getRange(1, 1, 1, 13).setValues([headers]);
+      sheet.getRange(1, 1, 1, 13)
+        .setBackground('#c62828')
+        .setFontColor('white')
+        .setFontWeight('bold')
+        .setHorizontalAlignment('center');
+    }
+
+    // --- 3. DATA PARSING ---
+    // e.postData.contents is the most reliable source for large payloads.
+    // e.parameter.data is used as fallback.
+    let rawData = '';
+    if (e.postData && e.postData.contents) {
+      try {
+        rawData = decodeURIComponent(e.postData.contents);
+      } catch (err) {
+        rawData = e.postData.contents;
+      }
+      if (rawData.startsWith('data=')) rawData = rawData.substring(5);
+    }
+    if (!rawData && e.parameter && e.parameter.data) {
+      rawData = e.parameter.data;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawData.trim());
+    } catch (error) {
+      console.error('❌ Parse error:', error.toString(), '| rawData:', rawData.slice(0, 200));
+      return ContentService.createTextOutput('ERROR: Parse failed - ' + error.toString());
+    }
+
+    const phase = data[0].phase;
+    const emt = data[0].emt;
+    const car = data[0].car;
+    const shift = data[0].shift || 'Unknown';
+    const cacheKey = 'pending_' + emt + '_' + car;
+
+    // --- 4. PHASE 1: INITIAL CHECKUP (Save to Cache Sheet) ---
+    if (phase === 'INITIAL CHECKUP') {
+      saveToCacheSheet(ss, cacheKey, JSON.stringify(data));
+      console.log('💾 Initial state cached for ' + emt);
+      return ContentService.createTextOutput('OK');
+    }
+
+    // --- 5. PHASE 2: FINAL RESTOCK ---
+    const finalData = data;
+
+    const validateDate = (dateStr) => {
+      if (!dateStr || dateStr === "N/A" || dateStr === "undefined") return new Date();
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? new Date() : d;
+    };
+
+    const startTime = validateDate(finalData[0].start_time);
+    const endTime = validateDate(finalData[0].end_time);
+    const checkupTime = finalData[0].checkup_time || 'N/A';
+
+    const pendingDataRaw = getFromCacheSheet(ss, cacheKey);
+    const initialData = pendingDataRaw ? JSON.parse(pendingDataRaw) : [];
+
+    // --- 6. REQUIRED QUANTITIES MAPPING ---
+    const requiredQuantities = {
+      // SOIN CLOSET
+      'Serum': '4',
+      'Silvederma': '4',
+      'Dawa asfar': '4',
+      'Sofratulle': '5',
+      'Betadine': '2',
+      'Band Aids': '1 pack',
+      'Wara2 akhdar': '20 sheets',
+      'Gauze bandage M': '2',
+      'Gauze bandage L': '2',
+      'Gauze roll': '5',
+      'Non allergic tape': '6',
+      'Gloves M or S': '3',
+      'Gloves L or XL': '3',
+      'Surgical face masks': '6',
+      'KN95': '12',
+      'High risk gloves': '1 pack',
+      'Sanitizer': '2',
+      'Blue pads': '3',
+      'Trashbags yellow': '1',
+      'Paper roll': '3',
+      'Descosept bottle': '3',
+
+      // MINI WAREHOUSE
+      'Elastic Small': '10',
+      'Elastic Medium': '10',
+      'Elastic Large': '10',
+      'Compressive': '10',
+      'Foulards': '4',
+      'Oxygen Nasal': '10',
+      'Oxygen Face Mask': '10',
+      'Oxygen NonRebr': '10',
+      'Pediatric (each)': '3 each',
+      'Glucometer Strips': '2 packs',
+      'Glucometer Needles': '1 pack',
+      'AED Patches': '10',
+      'Thermometer strips': '10',
+      'Suction Tube Green': '4',
+      'Suction Tube Black': '4',
+      'Suction Tube Orange': '4',
+      'Suction tubes (thin & thick)': '3',
+      'Heppa Filter': '3',
+      'OPA Yellow (#3 90mm)': '3',
+      'OPA Red (#4 100mm)': '3',
+      'OPA Pink (#000 40mm)': '3',
+      'OPA Blue (#5 110mm)': '3',
+      'OPA Green (#2 80mm)': '3',
+      'OPA White (#1 70mm)': '4',
+      'OPA Black (#0 60mm)': '3',
+      'OPA DARK BLUE (#00 50mm)': '3',
+      'Ice packs': '2',
+      'Gowns': '4',
+      'Disposables': '10',
+      'Face Shields': '8'
+    };
+
+    // --- 7. ALL ITEMS LIST ---
+    const allItems = [
+      {page: 'Soin Closet', item: 'Serum'},
+      {page: 'Soin Closet', item: 'Silvederma'},
+      {page: 'Soin Closet', item: 'Dawa asfar'},
+      {page: 'Soin Closet', item: 'Sofratulle'},
+      {page: 'Soin Closet', item: 'Betadine'},
+      {page: 'Soin Closet', item: 'Band Aids'},
+      {page: 'Soin Closet', item: 'Wara2 akhdar'},
+      {page: 'Soin Closet', item: 'Gauze bandage M'},
+      {page: 'Soin Closet', item: 'Gauze bandage L'},
+      {page: 'Soin Closet', item: 'Gauze roll'},
+      {page: 'Soin Closet', item: 'Non allergic tape'},
+      {page: 'Soin Closet', item: 'Gloves M or S'},
+      {page: 'Soin Closet', item: 'Gloves L or XL'},
+      {page: 'Soin Closet', item: 'Surgical face masks'},
+      {page: 'Soin Closet', item: 'KN95'},
+      {page: 'Soin Closet', item: 'High risk gloves'},
+      {page: 'Soin Closet', item: 'Sanitizer'},
+      {page: 'Soin Closet', item: 'Blue pads'},
+      {page: 'Soin Closet', item: 'Trashbags yellow'},
+      {page: 'Soin Closet', item: 'Paper roll'},
+      {page: 'Soin Closet', item: 'Descosept bottle'},
+      {page: 'Mini Warehouse', item: 'Elastic Small'},
+      {page: 'Mini Warehouse', item: 'Elastic Medium'},
+      {page: 'Mini Warehouse', item: 'Elastic Large'},
+      {page: 'Mini Warehouse', item: 'Compressive'},
+      {page: 'Mini Warehouse', item: 'Foulards'},
+      {page: 'Mini Warehouse', item: 'Oxygen Nasal'},
+      {page: 'Mini Warehouse', item: 'Oxygen Face Mask'},
+      {page: 'Mini Warehouse', item: 'Oxygen NonRebr'},
+      {page: 'Mini Warehouse', item: 'Pediatric (each)'},
+      {page: 'Mini Warehouse', item: 'Glucometer Strips'},
+      {page: 'Mini Warehouse', item: 'Glucometer Needles'},
+      {page: 'Mini Warehouse', item: 'AED Patches'},
+      {page: 'Mini Warehouse', item: 'Thermometer strips'},
+      {page: 'Mini Warehouse', item: 'Suction Tube Green'},
+      {page: 'Mini Warehouse', item: 'Suction Tube Black'},
+      {page: 'Mini Warehouse', item: 'Suction Tube Orange'},
+      {page: 'Mini Warehouse', item: 'Suction tubes (thin & thick)'},
+      {page: 'Mini Warehouse', item: 'Heppa Filter'},
+      {page: 'Mini Warehouse', item: 'OPA Yellow (#3 90mm)'},
+      {page: 'Mini Warehouse', item: 'OPA Red (#4 100mm)'},
+      {page: 'Mini Warehouse', item: 'OPA Pink (#000 40mm)'},
+      {page: 'Mini Warehouse', item: 'OPA Blue (#5 110mm)'},
+      {page: 'Mini Warehouse', item: 'OPA Green (#2 80mm)'},
+      {page: 'Mini Warehouse', item: 'OPA White (#1 70mm)'},
+      {page: 'Mini Warehouse', item: 'OPA Black (#0 60mm)'},
+      {page: 'Mini Warehouse', item: 'OPA DARK BLUE (#00 50mm)'},
+      {page: 'Mini Warehouse', item: 'Ice packs'},
+      {page: 'Mini Warehouse', item: 'Gowns'},
+      {page: 'Mini Warehouse', item: 'Disposables'},
+      {page: 'Mini Warehouse', item: 'Face Shields'}
+    ];
+
+
+    const initialMap = {};
+    initialData.forEach(r => { initialMap[makeKey(r.page, r.item)] = r; });
+
+    const finalMap = {};
+    finalData.forEach(r => { finalMap[makeKey(r.page, r.item)] = r; });
+
+    function getNumericValue(qty) {
+      if (!qty || qty === '0' || qty === '') return 0;
+
+      let match = qty.toString().match(/\d+/);
+      if (match) {
+        return parseInt(match[0], 10);
+      }
+      return 0;
+    }
+
+    const finalRows = [];
+
+    allItems.forEach(itemInfo => {
+      const key = makeKey(itemInfo.page, itemInfo.item);
+      const initialRow = initialMap[key];
+      const finalRow = finalMap[key];
+      const reqTxt = requiredQuantities[itemInfo.item] || '1';
+      const reqNum = getNumericValue(reqTxt);
+
+      const isPercent = reqTxt.includes('%');
+      const isPsi = reqTxt.toLowerCase().includes('psi');
+
+      // --- 1. GET INITIAL DATA ---
+      let initQtyRaw = "0";
+      let initIsChecked = false;
+      if (initialRow) {
+        initIsChecked = initialRow.checked === true || initialRow.checked === "true";
+        initQtyRaw = initialRow.quantity ?? initialRow.psi_value ?? (initIsChecked ? "1" : "0");
+      }
+      let initNum = getNumericValue(initQtyRaw);
+
+      let initStatus = (initNum >= reqNum || (initIsChecked && !isPercent && !isPsi)) ? '✅ PRESENT' : '❌ INSUFFICIENT';
+
+      // --- 2. GET FINAL DATA ---
+      let finNum = initNum;
+      let finIsChecked = false;
+
+      if (finalRow) {
+        finIsChecked = finalRow.checked === true || finalRow.checked === "true";
+        let finalValRaw = finalRow.quantity ?? finalRow.psi_value ?? (finIsChecked ? "1" : "0");
+        finNum = getNumericValue(finalValRaw);
+      }
+
+      // --- 3. FINAL LOGIC ---
+      let finStatus = '';
+
+      if (initStatus === '✅ PRESENT') {
+        finStatus = '✅ PRESENT';
+      } else {
+        const isNowFull = finNum >= (isPercent ? 100 : reqNum) || finIsChecked;
+
+        if (isNowFull) {
+          finStatus = '✅ RESTOCKED';
+          if (isPercent) finNum = 100;
+          else if (isPsi) finNum = 2000;
+          else if (finNum < reqNum) finNum = reqNum;
+        } else {
+          finStatus = '⚠️ WAREHOUSE OUT OF STOCK';
+        }
+      }
+
+      // --- 4. FORMAT DISPLAY ---
+      let displayInit = initNum.toString() + (isPsi ? ' psi' : isPercent ? '%' : '');
+      let displayFin = finNum.toString() + (isPsi ? ' psi' : isPercent ? '%' : '');
+
+      finalRows.push([
+        startTime,
+        endTime,
+        checkupTime,
+        emt,
+        car,
+        shift,
+        itemInfo.page,
+        itemInfo.item,
+        initStatus,
+        finStatus,
+        displayInit,
+        displayFin,
+        reqTxt
+      ]);
+    });
+
+    // --- 9. FINAL SHEET WRITE ---
+    sheet.getRange(sheet.getLastRow() + 1, 1, finalRows.length, 13).setValues(finalRows);
+    deleteFromCacheSheet(ss, cacheKey);
+
+    console.log('✅ Final report written successfully for ' + car);
+    return ContentService.createTextOutput('OK');
+
+  } catch (err) {
+    console.error('❌ CRITICAL ERROR:', err.toString());
+    return ContentService.createTextOutput('ERROR: ' + err.toString());
+  }
+}
+
+function saveToCacheSheet(ss, key, value) {
+  let cacheSheet = ss.getSheetByName('SYSTEM_CACHE');
+  if (!cacheSheet) {
+    cacheSheet = ss.insertSheet('SYSTEM_CACHE');
+    cacheSheet.hideSheet();
+  }
+  deleteFromCacheSheet(ss, key);
+  cacheSheet.appendRow([key, value, new Date()]);
+}
+
+function getFromCacheSheet(ss, key) {
+  const cacheSheet = ss.getSheetByName('SYSTEM_CACHE');
+  if (!cacheSheet) return null;
+  const vals = cacheSheet.getDataRange().getValues();
+  for (let i = 0; i < vals.length; i++) {
+    if (vals[i][0] === key) return vals[i][1];
+  }
+  return null;
+}
+
+function deleteFromCacheSheet(ss, key) {
+  const cacheSheet = ss.getSheetByName('SYSTEM_CACHE');
+  if (!cacheSheet) return;
+  const vals = cacheSheet.getDataRange().getValues();
+  for (let i = vals.length - 1; i >= 0; i--) {
+    if (vals[i][0] === key) cacheSheet.deleteRow(i + 1);
+  }
+}
+
+// TEST: open your /exec URL in a browser - it should show the deployment + spreadsheet info
+function doGet() {
+  try {
+    const ss = getSpreadsheet();
+    return ContentService.createTextOutput(
+      'DEPLOYMENT OK ✅ | Spreadsheet ID: ' + ss.getId() +
+      ' | First sheet: ' + ss.getSheets()[0].getName() +
+      ' | Rows: ' + ss.getSheets()[0].getLastRow()
+    );
+  } catch (err) {
+    return ContentService.createTextOutput('ERROR: ' + err.toString());
+  }
+}
+
+function doOptions(e) {
+  return ContentService.createTextOutput(JSON.stringify({status: 'CORS_OK'}))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    });
+}

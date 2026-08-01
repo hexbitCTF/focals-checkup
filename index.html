@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRC Aley Station 602</title>
+    <link rel="stylesheet" href="style.css?v=3">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🚑 LRC Aley Station 602</h1>
+            <div class="dropdowns">
+                <label>EMT:
+                    <select id="emt">
+                        <option value="">Select EMT</option>
+                    </select>
+                </label>
+            </div>
+        </header>
+
+        <!-- Soin Closet Page -->
+        <div id="soin-closet" class="page active" data-page="Soin Closet">
+            <h2>🧴 Soin Closet</h2>
+            <div class="items"></div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="nextPage()">Next: Mini Warehouse →</button>
+            </div>
+        </div>
+
+        <!-- Mini Warehouse Page -->
+        <div id="mini-warehouse" class="page" data-page="Mini Warehouse">
+            <h2>📦 Mini Warehouse</h2>
+            <div class="items"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+                <button class="btn btn-primary" onclick="submitInitial()">Submit Checkup ✅</button>
+            </div>
+        </div>
+
+        <!-- Restock Page -->
+        <div id="restock" class="page">
+            <h2>📋 Restock Missing Items</h2>
+            <div id="restock-list" class="items"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-primary" onclick="submitFinal()">All Done - Submit Final ✅</button>
+                <button class="btn btn-secondary" onclick="backToCheckup()">Edit Checkup</button>
+            </div>
+        </div>
+
+        <!-- Success Page -->
+        <div id="success" class="page">
+            <h2>🎉 Checkup Complete!</h2>
+            <p>All items submitted successfully.</p>
+            <div class="nav-buttons">
+                <button class="btn btn-primary" onclick="newCheckup()">New Checkup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loading-text">Loading...</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
