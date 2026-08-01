@@ -1,8 +1,9 @@
 // CONFIGURATION 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKpZ3PoD4XpCZA1N8vQECkZsRBT2WZZem2YydcyNALgV3cSLFzZVULwAqZu8X-9qNl2Q/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHPx_Hz7O4TWkX18IrPfMYBm74N6JDwLh61leVBvq816wnLeJG6JNwj1aNhWXA7gzWwQ/exec';
 
 const stationName = 'LRC Aley Station 602';
 const emts = ['John Doe', 'Jane Smith', 'Bob Johnson', 'Alice Brown'];
+const shifts = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 const pages = {
     'Soin Closet': [
@@ -100,7 +101,7 @@ const pages = {
 
 // GLOBAL STATE
 let state = JSON.parse(localStorage.getItem('checkupState')) || {
-    emt: '', items: {}, currentPage: 'Soin Closet', submitted: false,
+    emt: '', shift: '', items: {}, currentPage: 'Soin Closet', submitted: false,
     startTime: null, endTime: null, firstCheckTime: null
 };
 let initialState = JSON.parse(localStorage.getItem('initialCheckupState')) || {};
@@ -148,16 +149,18 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initDropdowns() {
-    const select = document.getElementById('emt');
-    emts.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = option.text = opt;
-        select.add(option);
-    });
-    select.value = state.emt;
-    select.addEventListener('change', () => {
-        state.emt = select.value;
-        saveState();
+    [{ id: 'emt', options: emts }, { id: 'shift', options: shifts }].forEach(({ id, options }) => {
+        const select = document.getElementById(id);
+        options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = option.text = opt;
+            select.add(option);
+        });
+        select.value = state[id] || '';
+        select.addEventListener('change', () => {
+            state[id] = select.value;
+            saveState();
+        });
     });
 }
 
@@ -499,9 +502,10 @@ function saveState() {
 function submitInitial() {
     if (isSubmitting) return;
     state.emt = document.getElementById('emt').value;
+    state.shift = document.getElementById('shift').value;
 
-    if (!state.emt) {
-        alert('Please select EMT first!');
+    if (!state.emt || !state.shift) {
+        alert('Please select EMT and Shift first!');
         return;
     }
 
@@ -557,6 +561,7 @@ function submitInitial() {
             first_check_time: state.firstCheckTime || '',
             emt: state.emt || '',
             car: stationName,
+            shift: state.shift || '',
             phase: 'INITIAL CHECKUP',
             item: itemName,
             status: status,
@@ -907,6 +912,7 @@ function submitFinal() {
             checkup_time: state.endTime && state.startTime ? ((new Date(state.endTime) - new Date(state.startTime)) / 1000 / 60).toFixed(1) + ' minutes' : 'N/A',
             emt: state.emt || '',
             car: stationName,
+            shift: state.shift || '',
             phase: 'FINAL RESTOCK',
             item: itemName,
             final_status: finalStatus,
@@ -918,7 +924,16 @@ function submitFinal() {
         };
     });
 
-    submitData(finalData, () => { newCheckup(); }, (status, text) => alert(`Final submit failed: ${text}`));
+    submitData(finalData, () => {
+        newCheckup();
+        hideLoading();
+        unlockButtons();
+        isSubmitting = false;
+    }, () => {
+        hideLoading();
+        unlockButtons();
+        isSubmitting = false;
+    });
 }
 
 
@@ -929,6 +944,7 @@ function newCheckup() {
     // RESET STATE IMMEDIATELY
     state = {
         emt: '',
+        shift: '',
         items: {},
         currentPage: 'Soin Closet',
         submitted: false,
@@ -943,7 +959,9 @@ function newCheckup() {
     // UI RESET
     currentPageIndex = 0;
     const emtEl = document.getElementById('emt');
+    const shiftEl = document.getElementById('shift');
     if (emtEl) emtEl.value = '';
+    if (shiftEl) shiftEl.value = '';
 
     // NAVIGATE TO START
     renderPage('Soin Closet');

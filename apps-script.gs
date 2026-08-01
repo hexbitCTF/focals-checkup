@@ -34,16 +34,18 @@ function doPost(e) {
     // --- 2. SETUP HEADERS ---
     if (sheet.getLastRow() === 0) {
       const headers = [
-        'Start_Time', 'End_Time', 'Checkup_Time', 'EMT', 'Car', 'Shift',
+        'Start_Time', 'End_Time', 'Checkup_Time', 'EMT', 'Shift',
         'Category', 'Item', 'Initial_Status', 'Final_Status',
         'Initial_Quantity', 'Final_Quantity', 'Required_Quantity'
       ];
-      sheet.getRange(1, 1, 1, 13).setValues([headers]);
-      sheet.getRange(1, 1, 1, 13)
+      sheet.getRange(1, 1, 1, 12).setValues([headers]);
+      sheet.getRange(1, 1, 1, 12)
         .setBackground('#c62828')
         .setFontColor('white')
         .setFontWeight('bold')
-        .setHorizontalAlignment('center');
+        .setHorizontalAlignment('center')
+        .setVerticalAlignment('middle')
+        .setBorder(true, true, true, true, true, true);
     }
 
     // --- 3. DATA PARSING ---
@@ -289,7 +291,6 @@ function doPost(e) {
         endTime,
         checkupTime,
         emt,
-        car,
         shift,
         itemInfo.page,
         itemInfo.item,
@@ -302,7 +303,19 @@ function doPost(e) {
     });
 
     // --- 9. FINAL SHEET WRITE ---
-    sheet.getRange(sheet.getLastRow() + 1, 1, finalRows.length, 13).setValues(finalRows);
+    // Leave 2 empty rows between each submission's table so they are easy to distinguish.
+    // First submission starts right after the header; later ones start 2 rows below the last one.
+    const firstDataRow = sheet.getLastRow() <= 1 ? 2 : sheet.getLastRow() + 3;
+    const outputRange = sheet.getRange(firstDataRow, 1, finalRows.length, 12);
+    outputRange.setValues(finalRows);
+
+    // Table borders around the whole submission block
+    outputRange.setBorder(true, true, true, true, true, true);
+
+    // Auto-size so nothing is hidden. This runs on the WHOLE sheet, so it also
+    // fixes rows written by older versions.
+    autoSizeColumns(sheet);
+
     deleteFromCacheSheet(ss, cacheKey);
 
     console.log('✅ Final report written successfully for ' + car);
@@ -312,6 +325,22 @@ function doPost(e) {
     console.error('❌ CRITICAL ERROR:', err.toString());
     return ContentService.createTextOutput('ERROR: ' + err.toString());
   }
+}
+
+// Fixed column widths per column type - deterministic, tight, single-line.
+// Status columns are extra wide so "⚠️ WAREHOUSE OUT OF STOCK" and "❌ INSUFFICIENT" fit fully on one line.
+function autoSizeColumns(sheet) {
+  const widths = [135, 135, 125, 95, 90, 100, 165, 140, 240, 125, 115, 145];
+  for (let c = 0; c < widths.length; c++) {
+    sheet.setColumnWidth(c + 1, widths[c]);
+  }
+  // No wrapping: every cell stays single-line, rows keep default height.
+  // Center every cell horizontally and vertically (applies to the whole sheet,
+  // so older rows get fixed too).
+  sheet.getDataRange()
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setWrap(false);
 }
 
 function saveToCacheSheet(ss, key, value) {
@@ -348,7 +377,7 @@ function doGet() {
   try {
     const ss = getSpreadsheet();
     return ContentService.createTextOutput(
-      'DEPLOYMENT OK ✅ | Spreadsheet ID: ' + ss.getId() +
+      'DEPLOYMENT OK ✅ | VERSION: 9 (wider 3 cols) | Spreadsheet ID: ' + ss.getId() +
       ' | First sheet: ' + ss.getSheets()[0].getName() +
       ' | Rows: ' + ss.getSheets()[0].getLastRow()
     );
