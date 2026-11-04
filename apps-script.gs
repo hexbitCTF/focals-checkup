@@ -373,17 +373,78 @@ function deleteFromCacheSheet(ss, key) {
 }
 
 // TEST: open your /exec URL in a browser - it should show the deployment + spreadsheet info
-function doGet() {
+// DATA: append ?action=data to the same URL to get the sheet as JSON
+//       (used by the RC-Equipemnt desktop app to sync consumables).
+function doGet(e) {
+  const action = e && e.parameter ? (e.parameter.action || '') : '';
+
+  if (action === 'data') {
+    return dataEndpoint();
+  }
+
+  if (action === 'status') {
+    return jsonOutput(statusPayload());
+  }
+
   try {
     const ss = getSpreadsheet();
     return ContentService.createTextOutput(
-      'DEPLOYMENT OK ✅ | VERSION: 9 (wider 3 cols) | Spreadsheet ID: ' + ss.getId() +
+      'DEPLOYMENT OK ✅ | VERSION: 10 (data endpoint) | Spreadsheet ID: ' + ss.getId() +
       ' | First sheet: ' + ss.getSheets()[0].getName() +
       ' | Rows: ' + ss.getSheets()[0].getLastRow()
     );
   } catch (err) {
     return ContentService.createTextOutput('ERROR: ' + err.toString());
   }
+}
+
+// Returns every row of the first sheet, exactly as displayed, including the header.
+// Shape: { ok: true, sheet: 'Sheet1', rows: [ ['Start_Time', ...], ... ] }
+// On failure: { ok: false, error: '...' }
+function dataEndpoint() {
+  try {
+    const ss = getSpreadsheet();
+    if (!ss) {
+      return jsonOutput({ ok: false, error: 'No spreadsheet found - check SPREADSHEET_ID or bind the script' });
+    }
+
+    const sheet = ss.getSheets()[0];
+    const lastRow = sheet.getLastRow();
+    const rows = lastRow > 0
+      ? sheet.getRange(1, 1, lastRow, 12).getDisplayValues()
+      : [];
+
+    return jsonOutput({
+      ok: true,
+      sheet: sheet.getName(),
+      rows: rows,
+      rows_in_sheet: lastRow
+    });
+  } catch (err) {
+    return jsonOutput({ ok: false, error: err.toString() });
+  }
+}
+
+function statusPayload() {
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheets()[0];
+    return {
+      ok: true,
+      spreadsheet_id: ss.getId(),
+      first_sheet: sheet.getName(),
+      rows: sheet.getLastRow(),
+      updated: new Date().toISOString()
+    };
+  } catch (err) {
+    return { ok: false, error: err.toString() };
+  }
+}
+
+function jsonOutput(payload) {
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doOptions(e) {
