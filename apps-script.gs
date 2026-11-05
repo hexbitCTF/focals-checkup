@@ -309,8 +309,17 @@ function doPost(e) {
     const outputRange = sheet.getRange(firstDataRow, 1, finalRows.length, 12);
     outputRange.setValues(finalRows);
 
+    // Show Start_Time and End_Time with full date (year-month-day) and 24-hour time.
+    sheet.getRange(firstDataRow, 1, finalRows.length, 2).setNumberFormat('yyyy-mm-dd HH:mm');
+
     // Table borders around the whole submission block
     outputRange.setBorder(true, true, true, true, true, true);
+
+    // Ensure every Start_Time / End_Time cell (old and new) shows full date + 24h time.
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      sheet.getRange(2, 1, lastRow - 1, 2).setNumberFormat('yyyy-mm-dd HH:mm');
+    }
 
     // Auto-size so nothing is hidden. This runs on the WHOLE sheet, so it also
     // fixes rows written by older versions.
