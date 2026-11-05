@@ -11,81 +11,81 @@ const pages = {
         { type: 'section', name: 'Wound Care' },
         { name: 'Serum', quantity: true, required: '4', displayRequired: '4' },
         { name: 'Silvederma', quantity: true, required: '4', displayRequired: '4' },
-        { name: 'Dawa asfar', quantity: true, required: '4', displayRequired: '4' },
+        { name: 'Yellow Burn Med', quantity: true, required: '4', displayRequired: '4' },
         { name: 'Sofratulle', quantity: true, required: '5', displayRequired: '5' },
         { name: 'Betadine', quantity: true, required: '2', displayRequired: '2' },
-        { name: 'Band Aids', quantity: true, required: '1', displayRequired: '1 pack' },
+        { name: 'Band Aids', type: 'select', options: ['Band Aid Type 1 (pack)', 'Band Aid Type 2 (pack)'], quantity: true, required: '1', displayRequired: '1 pack' },
         { name: 'Wara2 akhdar', quantity: true, required: '20', displayRequired: '20 sheets' },
 
         // SECTION: Bandages
         { type: 'section', name: 'Bandages' },
-        { name: 'Gauze bandage M', quantity: true, required: '2', displayRequired: '2' },
-        { name: 'Gauze bandage L', quantity: true, required: '2', displayRequired: '2' },
-        { name: 'Gauze roll', quantity: true, required: '5', displayRequired: '5' },
-        { name: 'Non allergic tape', quantity: true, required: '6', displayRequired: '6' },
+        { name: 'Gauze Bandage Medium', quantity: true, required: '2', displayRequired: '2' },
+        { name: 'Gauze Bandage Large', quantity: true, required: '2', displayRequired: '2' },
+        { name: 'Gauze Roll', quantity: true, required: '5', displayRequired: '5' },
+        { name: 'Non-Alergic Tape', quantity: true, required: '6', displayRequired: '6' },
 
         // SECTION: PPE
         { type: 'section', name: 'PPE' },
-        { name: 'Gloves M or S', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'Gloves L or XL', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'Surgical face masks', quantity: true, required: '6', displayRequired: '6' },
+        { name: 'Gloves M or S', type: 'select', options: ['Gloves Medium', 'Gloves Small'], quantity: true, required: '3', displayRequired: '3' },
+        { name: 'Gloves L or XL', type: 'select', options: ['Gloves Large', 'Gloves X Large'], quantity: true, required: '3', displayRequired: '3' },
+        { name: 'Face Mask', quantity: true, required: '6', displayRequired: '6' },
         { name: 'KN95', quantity: true, required: '12', displayRequired: '12' },
         { name: 'High risk gloves', quantity: true, required: '1', displayRequired: '1 pack' },
 
         // SECTION: Hygiene
         { type: 'section', name: 'Hygiene' },
-        { name: 'Sanitizer', quantity: true, required: '2', displayRequired: '2' },
-        { name: 'Blue pads', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'Trashbags yellow', quantity: true, required: '1', displayRequired: '1' },
-        { name: 'Paper roll', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'Descosept bottle', quantity: true, required: '3', displayRequired: '3' }
+        { name: 'Hand Gel', quantity: true, required: '2', displayRequired: '2' },
+        { name: 'Blue Pads', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'Trash Bag', quantity: true, required: '1', displayRequired: '1' },
+        { name: 'Paper Towel (roll)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'Descosept bottle', type: 'select', options: ['Descosept Sensitive', 'Descosept spezial'], quantity: true, required: '3', displayRequired: '3' }
     ],
 
     'Mini Warehouse': [
         // SECTION: Bandages
         { type: 'section', name: 'Bandages' },
-        { name: 'Elastic Small', quantity: true, required: '10', displayRequired: '10' },
-        { name: 'Elastic Medium', quantity: true, required: '10', displayRequired: '10' },
-        { name: 'Elastic Large', quantity: true, required: '10', displayRequired: '10' },
-        { name: 'Compressive', quantity: true, required: '10', displayRequired: '10' },
-        { name: 'Foulards', quantity: true, required: '4', displayRequired: '4' },
+        { name: 'Elastic Bandage Small', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Elastic Bandage Medium', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Elastic Bandage Large', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Compressive Bandage', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Triangular Bandage', quantity: true, required: '4', displayRequired: '4' },
 
         // SECTION: Oxygen
         { type: 'section', name: 'Oxygen' },
-        { name: 'Oxygen Nasal', quantity: true, required: '10', displayRequired: '10' },
-        { name: 'Oxygen Face Mask', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Nasal Adult', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Oxygen Face Mask Adult', quantity: true, required: '10', displayRequired: '10' },
         { name: 'Oxygen NonRebr', quantity: true, required: '10', displayRequired: '10' },
         { name: 'Pediatric (each)', quantity: true, required: '3', displayRequired: '3 each' },
 
         // SECTION: Vital Signs
         { type: 'section', name: 'Vital Signs' },
-        { name: 'Glucometer Strips', quantity: true, required: '2', displayRequired: '2 packs' },
-        { name: 'Glucometer Needles', quantity: true, required: '1', displayRequired: '1 pack' },
-        { name: 'AED Patches', quantity: true, required: '10', displayRequired: '10' },
-        { name: 'Thermometer strips', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Glucometer Strips (pack)', quantity: true, required: '2', displayRequired: '2 packs' },
+        { name: 'Gluco Meter Needles (pack)', quantity: true, required: '1', displayRequired: '1 pack' },
+        { name: 'AED Patch', quantity: true, required: '10', displayRequired: '10' },
+        { name: 'Thermometer Strips', quantity: true, required: '10', displayRequired: '10' },
 
         // SECTION: Airway
         { type: 'section', name: 'Airway' },
-        { name: 'Suction Tube Green', quantity: true, required: '4', displayRequired: '4' },
-        { name: 'Suction Tube Black', quantity: true, required: '4', displayRequired: '4' },
-        { name: 'Suction Tube Orange', quantity: true, required: '4', displayRequired: '4' },
+        { name: 'Suction Tube (Green)', quantity: true, required: '4', displayRequired: '4' },
+        { name: 'Suction Tube (Black)', quantity: true, required: '4', displayRequired: '4' },
+        { name: 'Suction Tube (orange)', quantity: true, required: '4', displayRequired: '4' },
         { name: 'Suction tubes (thin & thick)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'Heppa Filter', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'Hepa Filters', quantity: true, required: '3', displayRequired: '3' },
 
         // SECTION: Cannulas (OPA)
         { type: 'section', name: 'Cannulas (OPA)' },
-        { name: 'OPA Yellow (#3 90mm)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'OPA Red (#4 100mm)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'OPA Pink (#000 40mm)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'OPA Blue (#5 110mm)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'OPA Green (#2 80mm)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'OPA White (#1 70mm)', quantity: true, required: '4', displayRequired: '4' },
-        { name: 'OPA Black (#0 60mm)', quantity: true, required: '3', displayRequired: '3' },
-        { name: 'OPA DARK BLUE (#00 50mm)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (Yellow)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (Red)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (Pink)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (Light Blue)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (Dark Green)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (White)', quantity: true, required: '4', displayRequired: '4' },
+        { name: 'OPA (Black)', quantity: true, required: '3', displayRequired: '3' },
+        { name: 'OPA (Dark Blue)', quantity: true, required: '3', displayRequired: '3' },
 
         // SECTION: Other
         { type: 'section', name: 'Other' },
-        { name: 'Ice packs', quantity: true, required: '2', displayRequired: '2' },
+        { name: 'Ice Packs', quantity: true, required: '2', displayRequired: '2' },
         { name: 'Gowns', quantity: true, required: '4', displayRequired: '4' },
         { name: 'Disposables', quantity: true, required: '10', displayRequired: '10' },
         { name: 'Face Shields', quantity: true, required: '8', displayRequired: '8' }
@@ -304,8 +304,25 @@ function renderPage(pageName) {
             const qty = saved.quantity || '0';
             const isChecked = saved.checked || false;
 
+            // CASE 0: SELECT (variant dropdown, e.g. Band Aids / Gloves / Descosept)
+            if (item.type === 'select' && item.quantity) {
+                const selected = saved.variant || item.options[0];
+                if (!saved.variant) saved.variant = selected;
+                const optionsHTML = item.options.map(opt =>
+                    `<option value="${opt}" ${opt === selected ? 'selected' : ''}>${opt}</option>`
+                ).join('');
+                div.innerHTML = `
+                    <label class="quantity-label">${item.name}</label>
+                    <select class="input-select">${optionsHTML}</select>
+                    <input type="number" class="input-quantity"
+                           placeholder="Qty" value="${qty}" min="0" step="1"
+                           inputmode="numeric" onfocus="this.select()" oninput="validateQuantityInput(this)">
+                    <span class="required">Required: ${item.displayRequired || item.required}</span>
+                `;
+                div.classList.add('quantity-only');
+            }
             // CASE 1: PURE QUANTITY
-            if (item.quantity && !item.type) {
+            else if (item.quantity && !item.type) {
                 div.innerHTML = `
                     <label class="quantity-label">${item.name}</label>
                     <input type="number" class="input-quantity" 
@@ -383,6 +400,7 @@ function setupItemEvents(div, item, key) {
     // QUANTITY-ONLY ITEMS
     if (div.classList.contains('quantity-only')) {
         const quantityInput = div.querySelector('.input-quantity');
+        const selectInput = div.querySelector('.input-select');
         div.style.cursor = 'default';
         quantityInput.addEventListener('input', () => {
             state.items[key].quantity = quantityInput.value || '0';
@@ -391,6 +409,17 @@ function setupItemEvents(div, item, key) {
             }
             saveState();
         });
+        if (selectInput) {
+            state.items[key].variant = selectInput.value;
+            saveState();
+            selectInput.addEventListener('change', () => {
+                state.items[key].variant = selectInput.value;
+                if (state.currentPage === 'Soin Closet' && !firstCheckRecorded) {
+                    recordFirstCheck();
+                }
+                saveState();
+            });
+        }
         return;
     }
 
@@ -534,41 +563,53 @@ function submitInitial() {
     }
 
     // ✅ Build data from COMPLETE state
-    const allData = Array.from(validKeys).map(key => {
+    // Select (dropdown) items expand into one entry per variant so the sheet
+    // gets a row for each variant (e.g. Band Aid Type 1 / Type 2).
+    const allData = Array.from(validKeys).flatMap(key => {
         const data = state.items[key];
         const dashIndex = key.indexOf('-');
         const pageName = key.substring(0, dashIndex);
         const itemName = decodeURIComponent(key.substring(dashIndex + 1));
         const item = pages[pageName]?.find(i => i.name === itemName);
 
-        let itemVal = 0;
-        if (data.quantity && parseInt(data.quantity) > 0) {
-            itemVal = parseInt(data.quantity);
-        } else if (data.value && parseInt(data.value) > 0) {
-            itemVal = parseInt(data.value);
-        } else if (data.checked === true) {
-            itemVal = 1;
-        }
+        const buildEntry = (variantName, isSelected) => {
+            let itemVal = 0;
+            if (isSelected) {
+                if (data.quantity && parseInt(data.quantity) > 0) {
+                    itemVal = parseInt(data.quantity);
+                } else if (data.value && parseInt(data.value) > 0) {
+                    itemVal = parseInt(data.value);
+                } else if (data.checked === true) {
+                    itemVal = 1;
+                }
+            }
 
-        let status = itemVal > 0 ? '✅ PRESENT' : '❌ MISSING';
-        if (item?.required?.includes('%')) status = itemVal >= 50 ? '✅ PRESENT' : '❌ MISSING';
-        if (item?.required?.includes('psi') || item?.displayRequired?.includes('psi')) status = itemVal >= 2000 ? '✅ PRESENT' : '❌ MISSING';
+            let status = itemVal > 0 ? '✅ PRESENT' : '❌ MISSING';
+            if (item?.required?.includes('%')) status = itemVal >= 50 ? '✅ PRESENT' : '❌ MISSING';
+            if (item?.required?.includes('psi') || item?.displayRequired?.includes('psi')) status = itemVal >= 2000 ? '✅ PRESENT' : '❌ MISSING';
 
-        return {
-            page: pageName,
-            timestamp: new Date().toISOString(),
-            start_time: state.startTime || '',
-            first_check_time: state.firstCheckTime || '',
-            emt: state.emt || '',
-            car: stationName,
-            shift: state.shift || '',
-            phase: 'INITIAL CHECKUP',
-            item: itemName,
-            status: status,
-            quantity: data.quantity || '0',  // This will ALWAYS exist now
-            psi_value: data.value || '',
-            checked: data.checked === true
+            return {
+                page: pageName,
+                timestamp: new Date().toISOString(),
+                start_time: state.startTime || '',
+                first_check_time: state.firstCheckTime || '',
+                emt: state.emt || '',
+                car: stationName,
+                shift: state.shift || '',
+                phase: 'INITIAL CHECKUP',
+                item: variantName,
+                status: status,
+                quantity: isSelected ? (data.quantity || '0') : '0',
+                psi_value: isSelected ? (data.value || '') : '',
+                checked: isSelected ? (data.checked === true) : false
+            };
         };
+
+        if (item?.type === 'select' && item.options?.length) {
+            const selected = data.variant || item.options[0];
+            return item.options.map(opt => buildEntry(opt, opt === selected));
+        }
+        return [buildEntry(itemName, true)];
     });
 
     // Save snapshot BEFORE submit
@@ -762,12 +803,15 @@ function showRestock() {
         if (isPercent) displayCurrent = `${currentQty}%`;
         else if (isPsi) displayCurrent = `${currentQty} psi`;
 
+        const displayName = item.type === 'select'
+            ? `${item.name} — ${state.items[key]?.variant || item.options?.[0] || ''}`
+            : item.name;
         const getLabelHTML = (isRestocked) => {
             if (isRestocked) {
                 // If restocked, show 100% or 2000psi regardless of the minimum required threshold
                 const finalVal = isPercent ? "100%" : isPsi ? "2000 psi" : requiredNum;
                 return `
-                    <strong>${pageName}:</strong> ${item.name}
+                    <strong>${pageName}:</strong> ${displayName}
                     <div style="font-size:0.9em;color:#28a745;">
                         📊 Current: ${finalVal} | Required: ${displayRequired} 
                         <span style="color:#28a745;font-weight:bold;">✅ RESTOCKED ✓</span>
@@ -775,7 +819,7 @@ function showRestock() {
                 `;
             } else {
                 return `
-                    <strong>${pageName}:</strong> ${item.name}
+                    <strong>${pageName}:</strong> ${displayName}
                     <div style="font-size:0.9em;color:#ff9800;">
                         📊 Current: ${displayCurrent} | Required: ${displayRequired} 
                         <span style="color:#e74c3c;font-weight:bold;">(-${requiredNum - currentQty})</span>
@@ -867,61 +911,74 @@ function submitFinal() {
         });
     });
 
-    const finalData = Array.from(validKeys).map(key => {
+    // Select (dropdown) items expand into one entry per variant, matching submitInitial.
+    const finalData = Array.from(validKeys).flatMap(key => {
         const data = state.items[key] || { quantity: '0', checked: false, value: '' };
         const dashIndex = key.indexOf('-');
         const itemName = decodeURIComponent(key.substring(dashIndex + 1));
         const pageName = key.substring(0, dashIndex);
         const item = pages[pageName]?.find(i => i.name === itemName);
 
-        // ✅ EXTRACT REQUIRED NUMBER
-        let requiredNum = 1;
-        if (item?.required) {
-            if (item.required.includes('psi')) requiredNum = 2000;
-            else if (item.required.includes('%')) requiredNum = 50;
-            else {
-                const numMatch = item.required.match(/^\d+/);
-                requiredNum = numMatch ? parseInt(numMatch[0]) : 1;
+        const buildEntry = (variantName, isSelected) => {
+            // ✅ EXTRACT REQUIRED NUMBER
+            let requiredNum = 1;
+            if (item?.required) {
+                if (item.required.includes('psi')) requiredNum = 2000;
+                else if (item.required.includes('%')) requiredNum = 50;
+                else {
+                    const numMatch = item.required.match(/^\d+/);
+                    requiredNum = numMatch ? parseInt(numMatch[0]) : 1;
+                }
             }
-        }
 
-        // ✅ FINAL QUANTITY (current state)
-        let currentQty = 0;
-        if (data.quantity && parseInt(data.quantity) > 0) currentQty = parseInt(data.quantity);
-        else if (data.value && parseInt(data.value) > 0) currentQty = parseInt(data.value);
-        else if (data.checked === true) currentQty = 1;
+            // ✅ FINAL QUANTITY (current state)
+            let currentQty = 0;
+            if (isSelected) {
+                if (data.quantity && parseInt(data.quantity) > 0) currentQty = parseInt(data.quantity);
+                else if (data.value && parseInt(data.value) > 0) currentQty = parseInt(data.value);
+                else if (data.checked === true) currentQty = 1;
+            }
 
-        // ✅ INITIAL QUANTITY (snapshot from submitInitial)
-        const initialData = initialState.items?.[key] || { quantity: '0', checked: false, value: '' };
-        let initialQty = 0;
-        if (initialData.quantity && parseInt(initialData.quantity) > 0) initialQty = parseInt(initialData.quantity);
-        else if (initialData.value && parseInt(initialData.value) > 0) initialQty = parseInt(initialData.value);
-        else if (initialData.checked === true) initialQty = 1;
+            // ✅ INITIAL QUANTITY (snapshot from submitInitial)
+            const initialData = initialState.items?.[key] || { quantity: '0', checked: false, value: '' };
+            let initialQty = 0;
+            if (isSelected) {
+                if (initialData.quantity && parseInt(initialData.quantity) > 0) initialQty = parseInt(initialData.quantity);
+                else if (initialData.value && parseInt(initialData.value) > 0) initialQty = parseInt(initialData.value);
+                else if (initialData.checked === true) initialQty = 1;
+            }
 
-        const wasInitiallyInsufficient = initialQty < requiredNum;
-        const finalStatus = (currentQty >= requiredNum)
-            ? (wasInitiallyInsufficient ? '✅ RESTOCKED FROM WAREHOUSE' : '✅ PRESENT')
-            : '⚠️ WAREHOUSE OUT OF STOCK';
+            const wasInitiallyInsufficient = initialQty < requiredNum;
+            const finalStatus = (currentQty >= requiredNum)
+                ? (wasInitiallyInsufficient ? '✅ RESTOCKED FROM WAREHOUSE' : '✅ PRESENT')
+                : '⚠️ WAREHOUSE OUT OF STOCK';
 
-        console.log(`📊 FINAL: ${itemName} | initial=${initialQty} | final=${currentQty} | status=${finalStatus}`);
+            console.log(`📊 FINAL: ${variantName} | initial=${initialQty} | final=${currentQty} | status=${finalStatus}`);
 
-        return {
-            page: pageName,
-            start_time: state.startTime || '',
-            end_time: state.endTime || '',
-            checkup_time: state.endTime && state.startTime ? ((new Date(state.endTime) - new Date(state.startTime)) / 1000 / 60).toFixed(1) + ' minutes' : 'N/A',
-            emt: state.emt || '',
-            car: stationName,
-            shift: state.shift || '',
-            phase: 'FINAL RESTOCK',
-            item: itemName,
-            final_status: finalStatus,
-            quantity: data.quantity || '0',
-            psi_value: data.value || '',
-            checked: data.checked === true,
-            initial_qty: initialQty,      // DEBUG
-            final_qty: currentQty         // DEBUG
+            return {
+                page: pageName,
+                start_time: state.startTime || '',
+                end_time: state.endTime || '',
+                checkup_time: state.endTime && state.startTime ? ((new Date(state.endTime) - new Date(state.startTime)) / 1000 / 60).toFixed(1) + ' minutes' : 'N/A',
+                emt: state.emt || '',
+                car: stationName,
+                shift: state.shift || '',
+                phase: 'FINAL RESTOCK',
+                item: variantName,
+                final_status: finalStatus,
+                quantity: isSelected ? (data.quantity || '0') : '0',
+                psi_value: isSelected ? (data.value || '') : '',
+                checked: isSelected ? (data.checked === true) : false,
+                initial_qty: initialQty,      // DEBUG
+                final_qty: currentQty         // DEBUG
+            };
         };
+
+        if (item?.type === 'select' && item.options?.length) {
+            const selected = data.variant || initialState.items?.[key]?.variant || item.options[0];
+            return item.options.map(opt => buildEntry(opt, opt === selected));
+        }
+        return [buildEntry(itemName, true)];
     });
 
     submitData(finalData, () => {
