@@ -34,7 +34,7 @@ const pages = {
 
         // SECTION: Hygiene
         { type: 'section', name: 'Hygiene' },
-        { name: 'Hand Gel', quantity: true, required: '2', displayRequired: '2' },
+        { name: 'Sanitizer', quantity: true, required: '2', displayRequired: '2' },
         { name: 'Blue Pads', quantity: true, required: '3', displayRequired: '3' },
         { name: 'Trash Bag', quantity: true, required: '1', displayRequired: '1' },
         { name: 'Paper Towel (roll)', quantity: true, required: '3', displayRequired: '3' },
